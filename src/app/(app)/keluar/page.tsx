@@ -131,6 +131,9 @@ export default function KeluarPage() {
                 setGlobalForm({ tgl_keluar: new Date().toISOString().split('T')[0], no_request: '', keterangan: '', is_pop: false, lokasi_pop: '' })
                 setCart([])
                 fetchItems()
+            } else {
+                const errData = await res.json()
+                alert(`Gagal menyimpan transaksi: ${errData.error || 'Terjadi kesalahan sistem.'}`)
             }
         } finally { setSaving(false) }
     }

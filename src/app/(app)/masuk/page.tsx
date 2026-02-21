@@ -57,6 +57,9 @@ export default function MasukPage() {
                 setForm({ id_barang: '', jumlah: '', keterangan: '', no_po: '', tgl_masuk: new Date().toISOString().split('T')[0] });
                 setSerialNumbers([])
                 fetchItems()
+            } else {
+                const errData = await res.json()
+                alert(`Gagal menyimpan input barang: ${errData.error || 'Server error'}`)
             }
         } finally { setSaving(false) }
     }
