@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(item, { status: 201 })
     } catch (e: any) {
+        console.error("PRISMA API FATAL ERROR (MASUK):", e);
         return NextResponse.json({ error: e.message, stack: e.stack }, { status: 500 })
     }
 }
