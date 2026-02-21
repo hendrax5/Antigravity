@@ -12,7 +12,7 @@ export async function GET() {
 export async function POST(request: Request) {
     const body = await request.json()
     const item = await prisma.masterCabang.create({
-        data: { cabang: body.cabang, kode_cabang: body.kode_cabang, alamat: body.alamat, id_area: body.id_area }
+        data: { cabang: body.cabang, alamat: body.alamat, id_area: body.id_area ? parseInt(body.id_area) : null, id_admin: 'system' }
     })
     return NextResponse.json(item, { status: 201 })
 }
