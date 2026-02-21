@@ -16,11 +16,17 @@ export async function GET(request: NextRequest) {
     const [items, total] = await Promise.all([
         prisma.serialNumber.findMany({
             where, skip, take: limit,
-            orderBy: { tgl_input: 'desc' },
-            include: { barang: { select: { nama_barang: true, kode_barang: true } } },
+            orderBy: { id_sn: 'desc' },
+            include: { barangKeluar: { include: { barang: { select: { nama_barang: true, kode_barang: true } } } } },
         }),
         prisma.serialNumber.count({ where }),
     ])
+    const itemsMapped = items.map((item: any) => ({
+        ...item,
+        status: item.id_status === 1 ? 'gudang' : 'deployed',
+        tgl_input: item.barangKeluar?.tgl_keluar,
+        barang: item.barangKeluar?.barang || { nama_barang: 'Unknown Item', kode_barang: '-' }
+    }))
 
-    return NextResponse.json({ items, total })
+    return NextResponse.json({ items: itemsMapped, total })
 }

@@ -69,7 +69,6 @@ model MasterBarang {
   kategori    MasterKategori? @relation(fields: [id_kategori], references: [id_kategori])
   barangMasuk BarangMasuk[]
   barangKeluar BarangKeluar[]
-  serialNumbers SerialNumber[]
   requestDetail RequestDetail[]
 
   @@map("m_gudang_barang")
@@ -101,6 +100,7 @@ model BarangKeluar {
   no_request  String?  @db.VarChar(100) @map("id_order")
 
   barang      MasterBarang @relation(fields: [id_barang], references: [id_barang])
+  serialNumbers SerialNumber[]
 
   @@map("t_gudang_barang_keluar")
 }
@@ -163,16 +163,12 @@ model POBarang {
 }
 
 model SerialNumber {
-  id_sn         Int      @id @default(autoincrement()) @map("id_serial_number_edit")
-  id_barang     Int
-  serial_number String   @map("kode_serial_number") @db.VarChar(255)
-  status        String   @db.VarChar(50) @default("gudang")
-  id_cabang     Int?     @map("id_status")
-  keterangan    String?  @db.Text
-  tgl_input     DateTime @default(now())
-  id_admin      Int?
+  id_sn            Int          @id @default(autoincrement()) @map("id_serial_number_edit")
+  id_barang_keluar Int
+  serial_number    String       @map("kode_serial_number") @db.VarChar(200)
+  id_status        Int
 
-  barang      MasterBarang @relation(fields: [id_barang], references: [id_barang])
+  barangKeluar     BarangKeluar @relation(fields: [id_barang_keluar], references: [id_keluar])
 
   @@map("t_gudang_serial_number")
 }
