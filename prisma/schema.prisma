@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model MasterArea {
+  id_area      Int       @id @default(autoincrement())
+  area         String    @db.VarChar(255)
+  user_id      Int?
+  id_admin     Int
+  tgl_input    DateTime  @default(now())
+  admin_update Int?
+  tgl_update   DateTime?
+
+  @@map("m_gudang_area")
+}
+
+model MasterKategori {
+  id_kategori Int    @id @default(autoincrement())
+  kategori    String @db.VarChar(255)
+  kode        String? @db.VarChar(50)
+
+  barang      MasterBarang[]
+
+  @@map("m_gudang_kategori")
+}
+
+model MasterPerusahaan {
+  id_perusahaan Int    @id @default(autoincrement())
+  perusahaan    String @db.VarChar(255)
+  kode          String? @db.VarChar(50)
+
+  @@map("m_gudang_perusahaan")
+}
+
+model MasterCabang {
+  id_cabang   Int     @id @default(autoincrement())
+  cabang      String  @db.VarChar(255)
+  id_area     Int?
+  kode_cabang String? @db.VarChar(50)
+  alamat      String? @db.Text
+  id_admin    Int?
+  tgl_input   DateTime @default(now())
+
+  userCabang  UserCabang[]
+
+  @@map("m_gudang_cabang")
+}
+
+model MasterBarang {
+  id_barang           Int     @id @default(autoincrement())
+  id_perusahaan       Int
+  id_brand_perusahaan Int?
+  id_kategori         Int
+  kode_barang         String  @db.VarChar(200)
+  nama_barang         String  @db.VarChar(200)
+  sn                  String? @db.Char(5)
+  stok_barang_baru    Float?  @default(0)
+  stok_dismantle      Float?  @default(0)
+  stok_min            String? @db.Char(1) @default("5")
+  satuan              String? @db.VarChar(50)
+  harga_barang        Float   @default(0)
+  tgl_input           DateTime @db.Date
+
+  kategori    MasterKategori? @relation(fields: [id_kategori], references: [id_kategori])
+  barangMasuk BarangMasuk[]
+  barangKeluar BarangKeluar[]
+  serialNumbers SerialNumber[]
+  requestDetail RequestDetail[]
+
+  @@map("m_gudang_barang")
+}
+
+model BarangMasuk {
+  id_masuk    Int      @id @default(autoincrement())
+  id_barang   Int
+  jumlah      Float
+  id_cabang   Int?
+  keterangan  String?  @db.Text
+  tgl_masuk   DateTime @default(now())
+  id_admin    Int?
+  no_po       String?  @db.VarChar(100)
+
+  barang      MasterBarang @relation(fields: [id_barang], references: [id_barang])
+
+  @@map("t_gudang_barang_masuk")
+}
+
+model BarangKeluar {
+  id_keluar   Int      @id @default(autoincrement())
+  id_barang   Int
+  jumlah      Float
+  id_cabang   Int?
+  keterangan  String?  @db.Text
+  tgl_keluar  DateTime @default(now())
+  id_admin    Int?
+  no_request  String?  @db.VarChar(100)
+
+  barang      MasterBarang @relation(fields: [id_barang], references: [id_barang])
+
+  @@map("t_gudang_barang_keluar")
+}
+
+model Request {
+  id_request  Int      @id @default(autoincrement())
+  no_request  String   @db.VarChar(100)
+  id_cabang   Int?
+  status      String   @db.VarChar(50) @default("draft")
+  keterangan  String?  @db.Text
+  tgl_request DateTime @default(now())
+  id_admin    Int?
+  tgl_update  DateTime?
+
+  details     RequestDetail[]
+
+  @@map("t_gudang_request")
+}
+
+model RequestDetail {
+  id_detail   Int   @id @default(autoincrement())
+  id_request  Int
+  id_barang   Int
+  jumlah      Float
+  keterangan  String? @db.Text
+
+  request     Request      @relation(fields: [id_request], references: [id_request])
+  barang      MasterBarang @relation(fields: [id_barang], references: [id_barang])
+
+  @@map("t_gudang_request_detail")
+}
+
+model PurchaseOrder {
+  id_po       Int      @id @default(autoincrement())
+  no_po       String   @db.VarChar(100)
+  id_cabang   Int?
+  status      String   @db.VarChar(50) @default("pending")
+  total_item  Int?     @default(0)
+  keterangan  String?  @db.Text
+  tgl_po      DateTime @default(now())
+  id_admin    Int?
+
+  details     POBarang[]
+
+  @@map("t_gudang_po")
+}
+
+model POBarang {
+  id_po_barang Int   @id @default(autoincrement())
+  id_po        Int
+  id_barang    Int
+  jumlah       Float
+  jumlah_terima Float? @default(0)
+  harga        Float? @default(0)
+  keterangan   String? @db.Text
+
+  po           PurchaseOrder @relation(fields: [id_po], references: [id_po])
+
+  @@map("t_gudang_po_barang")
+}
+
+model SerialNumber {
+  id_sn       Int      @id @default(autoincrement())
+  id_barang   Int
+  serial_number String @db.VarChar(255)
+  status      String   @db.VarChar(50) @default("gudang")
+  id_cabang   Int?
+  keterangan  String?  @db.Text
+  tgl_input   DateTime @default(now())
+  id_admin    Int?
+
+  barang      MasterBarang @relation(fields: [id_barang], references: [id_barang])
+
+  @@map("t_gudang_serial_number")
+}
+
+model BarangRusak {
+  id_rusak    Int      @id @default(autoincrement())
+  id_barang   Int?
+  jumlah      Float?
+  keterangan  String?  @db.Text
+  tgl_rusak   DateTime @default(now())
+  id_cabang   Int?
+  id_admin    Int?
+
+  @@map("t_gudang_rusak")
+}
+
+model User {
+  id_user     Int      @id @default(autoincrement())
+  username    String   @db.VarChar(100)
+  password    String   @db.VarChar(255)
+  nama        String?  @db.VarChar(200)
+  email       String?  @db.VarChar(200)
+  level       String?  @db.VarChar(50)
+  status      String?  @db.VarChar(20)  @default("aktif")
+  tgl_input   DateTime @default(now())
+
+  userCabang  UserCabang[]
+
+  @@map("user")
+}
+
+model UserCabang {
+  id          Int @id @default(autoincrement())
+  id_user     Int
+  id_cabang   Int
+
+  user        User         @relation(fields: [id_user], references: [id_user])
+  cabang      MasterCabang @relation(fields: [id_cabang], references: [id_cabang])
+
+  @@map("t_usercabang")
+}
