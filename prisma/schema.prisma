@@ -12,17 +12,17 @@ model MasterArea {
   area         String    @db.VarChar(255)
   user_id      Int?
   id_admin     Int
-  tgl_input    DateTime  @default(now())
+  tgl_input    DateTime  @default(now()) @db.Date
   admin_update Int?
-  tgl_update   DateTime?
+  tgl_update   DateTime? @db.Date
 
   @@map("m_gudang_area")
 }
 
 model MasterKategori {
-  id_kategori Int    @id @default(autoincrement())
+  id_kategori Int     @id @default(autoincrement())
   kategori    String  @map("nama_kategori") @db.VarChar(255)
-  kode        String? @db.VarChar(50)
+  singkatan   String? @db.VarChar(50)
 
   barang      MasterBarang[]
 
@@ -38,13 +38,12 @@ model MasterPerusahaan {
 }
 
 model MasterCabang {
-  id_cabang   Int     @id @default(autoincrement())
+  id_cabang   Int      @id @default(autoincrement())
   cabang      String   @map("nama_cabang") @db.VarChar(255)
-  id_area     Int?
-  kode_cabang String?  @db.VarChar(50)
+  id_area     Int?     @map("area")
   alamat      String?  @map("lokasi") @db.Text
-  id_admin    Int?     @map("rec_user")
-  tgl_input   DateTime @default(now()) @map("rec_date")
+  id_admin    String   @map("rec_user") @db.VarChar(50)
+  tgl_input   DateTime @default(now()) @map("rec_date") @db.Date
 
   userCabang  UserCabang[]
 
@@ -186,14 +185,16 @@ model BarangRusak {
 }
 
 model User {
-  id_user     Int      @id @default(autoincrement()) @map("Id_User")
-  username    String   @map("Username") @db.VarChar(100)
-  password    String   @map("Password") @db.VarChar(255)
-  nama        String?  @map("Nama") @db.VarChar(200)
-  email       String?  @map("Telepon") @db.VarChar(200)
-  level       String?  @db.VarChar(50)
-  status      String?  @map("status_aktif") @db.VarChar(20)  @default("aktif")
-  tgl_input   DateTime @default(now())
+  id_user      Int      @id @default(autoincrement()) @map("Id_User")
+  id_kontak    String?  @db.VarChar(20)
+  username     String   @map("Username") @db.VarChar(225)
+  password     String   @map("Password") @db.VarChar(225)
+  nama         String   @map("Nama") @db.VarChar(225)
+  telepon      String   @map("Telepon") @db.VarChar(225)
+  level        String   @default("Staff") @db.VarChar(50)
+  jabatan      String?  @db.VarChar(100)
+  id_cabang    Int?
+  status_aktif Int      @default(1)
 
   userCabang  UserCabang[]
 
