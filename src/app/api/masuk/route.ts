@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
                 no_po: body.no_po,
                 tgl_masuk: new Date(body.tgl_masuk ?? new Date()),
                 id_admin: body.id_admin ?? 1,
+                id_status_input: 1
             },
         })
 
