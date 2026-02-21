@@ -74,17 +74,18 @@ model MasterBarang {
 }
 
 model BarangMasuk {
-  id_masuk    Int      @id @default(autoincrement()) @map("id_barang_masuk")
-  id_barang   Int
-  jumlah      Float    @map("qty")
-  id_cabang   Int?
-  keterangan  String?  @map("deskripsi") @db.Text
-  tgl_masuk   DateTime @default(now())
-  id_admin    Int?     @map("id_admin_input")
-  no_po       String?  @db.VarChar(100) @map("id_order")
+  id_masuk        Int            @id @default(autoincrement()) @map("id_barang_masuk")
+  id_barang       Int
+  jumlah          Float          @map("qty")
+  id_cabang       Int?
+  keterangan      String?        @map("deskripsi") @db.Text
+  tgl_masuk       DateTime       @default(now())
+  id_admin        Int?           @map("id_admin_input")
+  no_po           String?        @db.VarChar(100) @map("id_order")
+  id_status_input Int?           @default(1)
 
-  barang        MasterBarang   @relation(fields: [id_barang], references: [id_barang])
-  serialNumbers SerialNumber[]
+  barang          MasterBarang   @relation(fields: [id_barang], references: [id_barang])
+  serialNumbers   SerialNumber[]
 
   @@map("t_gudang_barang_masuk")
 }
