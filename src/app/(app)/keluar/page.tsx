@@ -60,18 +60,22 @@ export default function KeluarPage() {
     }
 
     const toggleSN = (sn: string) => {
-        setSelectedSNs(prev => prev.includes(sn) ? prev.filter(s => s !== sn) : [...prev, sn])
+        setSelectedSNs(prev => {
+            const next = prev.includes(sn) ? prev.filter(s => s !== sn) : [...prev, sn];
+            setActiveItem(curr => ({ ...curr, jumlah: next.length.toString() }));
+            return next;
+        })
     }
 
     const scanSN = (sn: string) => {
         const found = availableSNs.find(a => a.serial_number === sn)
         if (found) {
             if (!selectedSNs.includes(sn)) {
-                if (selectedSNs.length < parseInt(activeItem.jumlah || '0')) {
-                    setSelectedSNs(prev => [...prev, sn])
-                } else {
-                    alert("Jumlah SN sudah mencapai batas kuantitas Barang.")
-                }
+                setSelectedSNs(prev => {
+                    const next = [...prev, sn];
+                    setActiveItem(curr => ({ ...curr, jumlah: next.length.toString() }));
+                    return next;
+                })
             }
         } else {
             alert("SN tidak ditemukan di daftar stok tersedia.")
@@ -163,15 +167,28 @@ export default function KeluarPage() {
                                     </div>
                                     <div>
                                         <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 4 }}>Kuantitas (Jumlah)</label>
-                                        <input className="input" type="number" min="1" value={activeItem.jumlah} onChange={e => setActiveItem({ ...activeItem, jumlah: e.target.value })} placeholder="0" />
+                                        <input
+                                            className="input"
+                                            type="number" min="1"
+                                            value={activeItem.jumlah}
+                                            onChange={e => setActiveItem({ ...activeItem, jumlah: e.target.value })}
+                                            placeholder="0"
+                                            readOnly={availableSNs.length > 0}
+                                            style={availableSNs.length > 0 ? { opacity: 0.7, background: 'rgba(255,255,255,0.05)' } : {}}
+                                        />
                                     </div>
 
-                                    {availableSNs.length > 0 && activeItem.jumlah && parseInt(activeItem.jumlah) > 0 && (
+                                    {availableSNs.length > 0 && (
                                         <div style={{ marginTop: 8, padding: 12, background: 'rgba(15,23,42,0.5)', borderRadius: 8, border: '1px solid #1E293B' }}>
+                                            <div style={{ marginBottom: 12, padding: '8px 12px', background: 'rgba(59,130,246,0.1)', borderRadius: 6, border: '1px solid rgba(59,130,246,0.2)' }}>
+                                                <p style={{ fontSize: 12, color: '#60A5FA', margin: 0 }}>
+                                                    ℹ️ Barang ini melacak <b>Serial Number</b>. Silakan Scan Barcode atau centang SN di bawah. Jumlah/Kuantitas akan otomatis menyesuaikan daftar SN yang Anda pilih.
+                                                </p>
+                                            </div>
                                             <label style={{ fontSize: 13, color: '#F1F5F9', display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontWeight: 500 }}>
-                                                <span>Pilih/Scan SN (Wajib {activeItem.jumlah})</span>
-                                                <span style={{ color: selectedSNs.length === parseInt(activeItem.jumlah) ? '#10B981' : '#F59E0B' }}>
-                                                    {selectedSNs.length} / {activeItem.jumlah} dipilih
+                                                <span>Pilih/Scan SN</span>
+                                                <span style={{ color: selectedSNs.length > 0 ? '#10B981' : '#F59E0B' }}>
+                                                    {selectedSNs.length} dipilih
                                                 </span>
                                             </label>
                                             {/* Infrared Barcode Scanner Input */}
@@ -191,11 +208,10 @@ export default function KeluarPage() {
                                                 {availableSNs.map((snItem) => {
                                                     const isSelected = selectedSNs.includes(snItem.serial_number);
                                                     return (
-                                                        <label key={snItem.id_sn} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: isSelected ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.02)', border: `1px solid ${isSelected ? '#3B82F6' : '#1E293B'}`, borderRadius: 6, cursor: 'pointer', opacity: (!isSelected && selectedSNs.length >= parseInt(activeItem.jumlah)) ? 0.5 : 1 }}>
+                                                        <label key={snItem.id_sn} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: isSelected ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.02)', border: `1px solid ${isSelected ? '#3B82F6' : '#1E293B'}`, borderRadius: 6, cursor: 'pointer' }}>
                                                             <input
                                                                 type="checkbox" checked={isSelected}
                                                                 onChange={() => toggleSN(snItem.serial_number)}
-                                                                disabled={!isSelected && selectedSNs.length >= parseInt(activeItem.jumlah)}
                                                                 style={{ accentColor: '#3B82F6', width: 14, height: 14 }}
                                                             />
                                                             <span style={{ fontSize: 11, fontFamily: 'monospace', color: isSelected ? '#60A5FA' : '#94A3B8' }}>{snItem.serial_number}</span>
