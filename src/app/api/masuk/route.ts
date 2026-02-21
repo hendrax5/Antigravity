@@ -20,36 +20,40 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    const body = await request.json()
-    const item = await prisma.barangMasuk.create({
-        data: {
-            id_barang: body.id_barang,
-            jumlah: body.jumlah,
-            id_cabang: body.id_cabang,
-            keterangan: body.keterangan,
-            no_po: body.no_po,
-            tgl_masuk: new Date(body.tgl_masuk ?? new Date()),
-            id_admin: body.id_admin ?? 1,
-        },
-    })
-
-    // Update stok
-    await prisma.masterBarang.update({
-        where: { id_barang: body.id_barang },
-        data: { stok_barang_baru: { increment: body.jumlah } },
-    })
-
-    // Handle new SNs mapping
-    if (body.serial_numbers && Array.isArray(body.serial_numbers) && body.serial_numbers.length > 0) {
-        const snData = body.serial_numbers.map((sn: string) => ({
-            id_barang_masuk: item.id_masuk,
-            serial_number: sn,
-            id_status: 1
-        }))
-        await prisma.serialNumber.createMany({
-            data: snData
+    try {
+        const body = await request.json()
+        const item = await prisma.barangMasuk.create({
+            data: {
+                id_barang: body.id_barang,
+                jumlah: body.jumlah,
+                id_cabang: body.id_cabang,
+                keterangan: body.keterangan,
+                no_po: body.no_po,
+                tgl_masuk: new Date(body.tgl_masuk ?? new Date()),
+                id_admin: body.id_admin ?? 1,
+            },
         })
-    }
 
-    return NextResponse.json(item, { status: 201 })
+        // Update stok
+        await prisma.masterBarang.update({
+            where: { id_barang: body.id_barang },
+            data: { stok_barang_baru: { increment: body.jumlah } },
+        })
+
+        // Handle new SNs mapping
+        if (body.serial_numbers && Array.isArray(body.serial_numbers) && body.serial_numbers.length > 0) {
+            const snData = body.serial_numbers.map((sn: string) => ({
+                id_barang_masuk: item.id_masuk,
+                serial_number: sn,
+                id_status: 1
+            }))
+            await prisma.serialNumber.createMany({
+                data: snData
+            })
+        }
+
+        return NextResponse.json(item, { status: 201 })
+    } catch (e: any) {
+        return NextResponse.json({ error: e.message, stack: e.stack }, { status: 500 })
+    }
 }
