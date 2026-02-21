@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
         prisma.purchaseOrder.findMany({
             skip, take: limit,
             orderBy: { tgl_po: 'desc' },
-            include: { details: { include: { barang: { select: { nama_barang: true, kode_barang: true } } } } },
+            include: { details: true },
         }),
         prisma.purchaseOrder.count(),
     ])
