@@ -19,6 +19,7 @@ export default function MasukPage() {
     const [showForm, setShowForm] = useState(false)
     const [barangList, setBarangList] = useState<BarangOption[]>([])
     const [form, setForm] = useState({ id_barang: '', jumlah: '', keterangan: '', no_po: '', tgl_masuk: new Date().toISOString().split('T')[0] })
+    const [serialNumbers, setSerialNumbers] = useState<string[]>([])
     const [saving, setSaving] = useState(false)
 
     const fetchItems = useCallback(async () => {
@@ -43,10 +44,38 @@ export default function MasukPage() {
             const res = await fetch('/api/masuk', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...form, id_barang: parseInt(form.id_barang), jumlah: parseFloat(form.jumlah) }),
+                body: JSON.stringify({
+                    ...form,
+                    id_barang: parseInt(form.id_barang),
+                    jumlah: parseFloat(form.jumlah),
+                    serial_numbers: serialNumbers.filter(sn => sn.trim() !== '')
+                }),
             })
-            if (res.ok) { setShowForm(false); setForm({ id_barang: '', jumlah: '', keterangan: '', no_po: '', tgl_masuk: new Date().toISOString().split('T')[0] }); fetchItems() }
+            if (res.ok) {
+                setShowForm(false);
+                setForm({ id_barang: '', jumlah: '', keterangan: '', no_po: '', tgl_masuk: new Date().toISOString().split('T')[0] });
+                setSerialNumbers([])
+                fetchItems()
+            }
         } finally { setSaving(false) }
+    }
+
+    const handleJumlahChange = (val: string) => {
+        setForm({ ...form, jumlah: val })
+        const num = parseInt(val) || 0
+        if (num > 0 && num <= 500) {
+            setSerialNumbers(prev => {
+                const next = [...prev]
+                if (next.length < num) {
+                    while (next.length < num) next.push('')
+                } else if (next.length > num) {
+                    next.length = num
+                }
+                return next
+            })
+        } else {
+            setSerialNumbers([])
+        }
     }
 
     const totalPages = Math.ceil(total / 20)
@@ -81,7 +110,7 @@ export default function MasukPage() {
                                 </div>
                                 <div>
                                     <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 6 }}>Jumlah *</label>
-                                    <input className="input" type="number" min="1" value={form.jumlah} onChange={e => setForm({ ...form, jumlah: e.target.value })} required placeholder="0" />
+                                    <input className="input" type="number" min="1" max="500" value={form.jumlah} onChange={e => handleJumlahChange(e.target.value)} required placeholder="0" />
                                 </div>
                                 <div>
                                     <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 6 }}>Tanggal Masuk</label>
@@ -95,6 +124,30 @@ export default function MasukPage() {
                                     <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 6 }}>Keterangan</label>
                                     <textarea className="input" value={form.keterangan} onChange={e => setForm({ ...form, keterangan: e.target.value })} placeholder="Keterangan tambahan..." rows={2} style={{ resize: 'vertical' }} />
                                 </div>
+                                {serialNumbers.length > 0 && (
+                                    <div style={{ gridColumn: '1/-1', marginTop: 12, paddingTop: 16, borderTop: '1px solid #1E293B' }}>
+                                        <label style={{ fontSize: 13, color: '#F1F5F9', display: 'block', marginBottom: 12, fontWeight: 500 }}>
+                                            Input Serial Number ({serialNumbers.length} item) *
+                                        </label>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+                                            {serialNumbers.map((sn, idx) => (
+                                                <div key={idx}>
+                                                    <input
+                                                        className="input"
+                                                        placeholder={`SN Item #${idx + 1}`}
+                                                        value={sn}
+                                                        onChange={(e) => {
+                                                            const next = [...serialNumbers]
+                                                            next[idx] = e.target.value
+                                                            setSerialNumbers(next)
+                                                        }}
+                                                        required
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             <div style={{ display: 'flex', gap: 12 }}>
                                 <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Menyimpan...' : '✓ Simpan'}</button>

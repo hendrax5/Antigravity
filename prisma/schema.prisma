@@ -83,7 +83,8 @@ model BarangMasuk {
   id_admin    Int?     @map("id_admin_input")
   no_po       String?  @db.VarChar(100) @map("id_order")
 
-  barang      MasterBarang @relation(fields: [id_barang], references: [id_barang])
+  barang        MasterBarang   @relation(fields: [id_barang], references: [id_barang])
+  serialNumbers SerialNumber[]
 
   @@map("t_gudang_barang_masuk")
 }
@@ -163,11 +164,13 @@ model POBarang {
 
 model SerialNumber {
   id_sn            Int          @id @default(autoincrement()) @map("id_serial_number_edit")
-  id_barang_keluar Int
+  id_barang_keluar Int?
+  id_barang_masuk  Int?
   serial_number    String       @map("kode_serial_number") @db.VarChar(200)
   id_status        Int
 
-  barangKeluar     BarangKeluar @relation(fields: [id_barang_keluar], references: [id_keluar])
+  barangKeluar     BarangKeluar? @relation(fields: [id_barang_keluar], references: [id_keluar])
+  barangMasuk      BarangMasuk?  @relation(fields: [id_barang_masuk], references: [id_masuk])
 
   @@map("t_gudang_serial_number")
 }

@@ -39,5 +39,13 @@ export async function POST(request: NextRequest) {
         data: { stok_barang_baru: { decrement: body.jumlah } },
     })
 
+    // Handle deployed SNs
+    if (body.serial_numbers && Array.isArray(body.serial_numbers) && body.serial_numbers.length > 0) {
+        await prisma.serialNumber.updateMany({
+            where: { serial_number: { in: body.serial_numbers }, id_status: 1 },
+            data: { id_barang_keluar: item.id_keluar, id_status: 2 }
+        })
+    }
+
     return NextResponse.json(item, { status: 201 })
 }

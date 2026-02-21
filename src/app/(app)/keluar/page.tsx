@@ -18,6 +18,8 @@ export default function KeluarPage() {
     const [showForm, setShowForm] = useState(false)
     const [barangList, setBarangList] = useState<BarangOption[]>([])
     const [form, setForm] = useState({ id_barang: '', jumlah: '', keterangan: '', no_request: '', tgl_keluar: new Date().toISOString().split('T')[0] })
+    const [availableSNs, setAvailableSNs] = useState<any[]>([])
+    const [selectedSNs, setSelectedSNs] = useState<string[]>([])
     const [saving, setSaving] = useState(false)
 
     const fetchItems = useCallback(async () => {
@@ -32,11 +34,50 @@ export default function KeluarPage() {
     useEffect(() => { if (showForm) fetch('/api/inventory?limit=500').then(r => r.json()).then(d => setBarangList(d.items)) }, [showForm])
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault(); setSaving(true)
+        e.preventDefault();
+        if (availableSNs.length > 0 && selectedSNs.length !== parseInt(form.jumlah)) {
+            alert(`Silakan pilih tepat ${form.jumlah} Serial Number.`);
+            return;
+        }
+        setSaving(true)
         try {
-            const res = await fetch('/api/keluar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, id_barang: parseInt(form.id_barang), jumlah: parseFloat(form.jumlah) }) })
-            if (res.ok) { setShowForm(false); fetchItems() }
+            const res = await fetch('/api/keluar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...form,
+                    id_barang: parseInt(form.id_barang),
+                    jumlah: parseFloat(form.jumlah),
+                    serial_numbers: selectedSNs
+                })
+            })
+            if (res.ok) {
+                setShowForm(false);
+                setForm({ id_barang: '', jumlah: '', keterangan: '', no_request: '', tgl_keluar: new Date().toISOString().split('T')[0] })
+                setSelectedSNs([])
+                fetchItems()
+            }
         } finally { setSaving(false) }
+    }
+
+    const handleBarangChange = async (val: string) => {
+        setForm({ ...form, id_barang: val })
+        setSelectedSNs([])
+        if (val) {
+            try {
+                const res = await fetch(`/api/inventory/${val}`)
+                if (res.ok) {
+                    const d = await res.json()
+                    setAvailableSNs(d.serialNumbers || [])
+                }
+            } catch { setAvailableSNs([]) }
+        } else {
+            setAvailableSNs([])
+        }
+    }
+
+    const toggleSN = (sn: string) => {
+        setSelectedSNs(prev => prev.includes(sn) ? prev.filter(s => s !== sn) : [...prev, sn])
     }
 
     return (
@@ -58,7 +99,7 @@ export default function KeluarPage() {
                             <div className="grid-2" style={{ marginBottom: 16, gap: 16 }}>
                                 <div>
                                     <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 6 }}>Barang *</label>
-                                    <select className="input" value={form.id_barang} onChange={e => setForm({ ...form, id_barang: e.target.value })} required>
+                                    <select className="input" value={form.id_barang} onChange={e => handleBarangChange(e.target.value)} required>
                                         <option value="">-- Pilih Barang --</option>
                                         {barangList.map(b => <option key={b.id_barang} value={b.id_barang}>{b.kode_barang} - {b.nama_barang}</option>)}
                                     </select>
@@ -79,6 +120,33 @@ export default function KeluarPage() {
                                     <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 6 }}>Keterangan</label>
                                     <textarea className="input" value={form.keterangan} onChange={e => setForm({ ...form, keterangan: e.target.value })} placeholder="Tujuan pengeluaran..." rows={2} style={{ resize: 'vertical' }} />
                                 </div>
+                                {availableSNs.length > 0 && form.jumlah && parseInt(form.jumlah) > 0 && (
+                                    <div style={{ gridColumn: '1/-1', marginTop: 12, paddingTop: 16, borderTop: '1px solid #1E293B' }}>
+                                        <label style={{ fontSize: 13, color: '#F1F5F9', display: 'flex', justifyContent: 'space-between', marginBottom: 12, fontWeight: 500 }}>
+                                            <span>Pilih Serial Number (Pilih {form.jumlah}) *</span>
+                                            <span style={{ color: selectedSNs.length === parseInt(form.jumlah) ? '#10B981' : '#F59E0B' }}>
+                                                {selectedSNs.length} / {form.jumlah} dipilih
+                                            </span>
+                                        </label>
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 8 }}>
+                                            {availableSNs.map((snItem) => {
+                                                const isSelected = selectedSNs.includes(snItem.serial_number);
+                                                return (
+                                                    <label key={snItem.id_sn} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: isSelected ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.02)', border: `1px solid ${isSelected ? '#3B82F6' : '#1E293B'}`, borderRadius: 8, cursor: 'pointer', opacity: (!isSelected && selectedSNs.length >= parseInt(form.jumlah)) ? 0.5 : 1 }}>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isSelected}
+                                                            onChange={() => toggleSN(snItem.serial_number)}
+                                                            disabled={!isSelected && selectedSNs.length >= parseInt(form.jumlah)}
+                                                            style={{ accentColor: '#3B82F6', width: 16, height: 16 }}
+                                                        />
+                                                        <span style={{ fontSize: 13, fontFamily: 'monospace', color: isSelected ? '#60A5FA' : '#94A3B8' }}>{snItem.serial_number}</span>
+                                                    </label>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             <div style={{ display: 'flex', gap: 12 }}>
                                 <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Menyimpan...' : '✓ Simpan'}</button>

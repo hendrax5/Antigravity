@@ -39,5 +39,17 @@ export async function POST(request: NextRequest) {
         data: { stok_barang_baru: { increment: body.jumlah } },
     })
 
+    // Handle new SNs mapping
+    if (body.serial_numbers && Array.isArray(body.serial_numbers) && body.serial_numbers.length > 0) {
+        const snData = body.serial_numbers.map((sn: string) => ({
+            id_barang_masuk: item.id_masuk,
+            serial_number: sn,
+            id_status: 1
+        }))
+        await prisma.serialNumber.createMany({
+            data: snData
+        })
+    }
+
     return NextResponse.json(item, { status: 201 })
 }

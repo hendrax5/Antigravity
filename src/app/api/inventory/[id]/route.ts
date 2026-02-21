@@ -14,15 +14,23 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             prisma.barangMasuk.findMany({
                 where: { id_barang: parseInt(id) },
                 orderBy: { tgl_masuk: 'desc' },
-                take: 50
+                take: 50,
+                include: { serialNumbers: true }
             }),
             prisma.barangKeluar.findMany({
                 where: { id_barang: parseInt(id) },
                 orderBy: { tgl_keluar: 'desc' },
-                take: 50
+                take: 50,
+                include: { serialNumbers: true }
             }),
             prisma.serialNumber.findMany({
-                where: { barangKeluar: { id_barang: parseInt(id) } },
+                where: {
+                    id_status: 1,
+                    OR: [
+                        { barangMasuk: { id_barang: parseInt(id) } },
+                        { barangKeluar: { id_barang: parseInt(id) } }
+                    ]
+                },
                 orderBy: { id_sn: 'desc' }
             })
         ])

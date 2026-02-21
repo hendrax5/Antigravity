@@ -108,6 +108,18 @@ export default function InventoryDetailPage() {
                                     </div>
                                     <div style={{ fontSize: 12, color: '#cbd5e1' }}>{h.keterangan || 'Tanpa keterangan'}</div>
                                     {h.no_po && <div style={{ fontSize: 11, color: '#64748B', marginTop: 4 }}>Ref PO: {h.no_po}</div>}
+                                    {h.serialNumbers && h.serialNumbers.length > 0 && (
+                                        <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(59,130,246,0.1)' }}>
+                                            <div style={{ fontSize: 11, color: '#64748B', marginBottom: 4 }}>Serial Numbers Masuk:</div>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                                                {h.serialNumbers.map((snItem: any) => (
+                                                    <span key={snItem.id_sn} style={{ background: 'rgba(59,130,246,0.1)', color: '#60A5FA', padding: '2px 6px', borderRadius: 4, fontSize: 10, fontFamily: 'monospace' }}>
+                                                        {snItem.serial_number}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -126,6 +138,18 @@ export default function InventoryDetailPage() {
                                     </div>
                                     <div style={{ fontSize: 12, color: '#cbd5e1' }}>{h.keterangan || 'Tanpa keterangan'}</div>
                                     {h.no_request && <div style={{ fontSize: 11, color: '#64748B', marginTop: 4 }}>Ref Req: {h.no_request}</div>}
+                                    {h.serialNumbers && h.serialNumbers.length > 0 && (
+                                        <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(239,68,68,0.1)' }}>
+                                            <div style={{ fontSize: 11, color: '#64748B', marginBottom: 4 }}>Serial Numbers Keluar:</div>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                                                {h.serialNumbers.map((snItem: any) => (
+                                                    <span key={snItem.id_sn} style={{ background: 'rgba(239,68,68,0.1)', color: '#F87171', padding: '2px 6px', borderRadius: 4, fontSize: 10, fontFamily: 'monospace' }}>
+                                                        {snItem.serial_number}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
