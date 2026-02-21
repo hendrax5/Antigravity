@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { ArrowUpCircle, Plus } from 'lucide-react'
+import { ArrowUpCircle, Plus, Search, Trash2, ShoppingCart, MapPin } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import Link from 'next/link'
 
@@ -10,6 +10,7 @@ interface BarangKeluar {
     barang: { id_barang: number; nama_barang: string; kode_barang: string; satuan: string | null }
 }
 interface BarangOption { id_barang: number; nama_barang: string; kode_barang: string }
+interface CartItem { id_barang: number; nama_barang: string; kode_barang: string; jumlah: number; serial_numbers: string[] }
 
 export default function KeluarPage() {
     const [items, setItems] = useState<BarangKeluar[]>([])
@@ -18,9 +19,16 @@ export default function KeluarPage() {
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
     const [barangList, setBarangList] = useState<BarangOption[]>([])
-    const [form, setForm] = useState({ id_barang: '', jumlah: '', keterangan: '', no_request: '', tgl_keluar: new Date().toISOString().split('T')[0] })
+
+    // Global checkout form
+    const [globalForm, setGlobalForm] = useState({ tgl_keluar: new Date().toISOString().split('T')[0], no_request: '', keterangan: '', is_pop: false, lokasi_pop: '' })
+    const [cart, setCart] = useState<CartItem[]>([])
+
+    // Active item drafting
+    const [activeItem, setActiveItem] = useState({ id_barang: '', jumlah: '' })
     const [availableSNs, setAvailableSNs] = useState<any[]>([])
     const [selectedSNs, setSelectedSNs] = useState<string[]>([])
+
     const [saving, setSaving] = useState(false)
 
     const fetchItems = useCallback(async () => {
@@ -34,42 +42,16 @@ export default function KeluarPage() {
     useEffect(() => { fetchItems() }, [fetchItems])
     useEffect(() => { if (showForm) fetch('/api/inventory?limit=500').then(r => r.json()).then(d => setBarangList(d.items)) }, [showForm])
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (availableSNs.length > 0 && selectedSNs.length !== parseInt(form.jumlah)) {
-            alert(`Silakan pilih tepat ${form.jumlah} Serial Number.`);
-            return;
-        }
-        setSaving(true)
-        try {
-            const res = await fetch('/api/keluar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...form,
-                    id_barang: parseInt(form.id_barang),
-                    jumlah: parseFloat(form.jumlah),
-                    serial_numbers: selectedSNs
-                })
-            })
-            if (res.ok) {
-                setShowForm(false);
-                setForm({ id_barang: '', jumlah: '', keterangan: '', no_request: '', tgl_keluar: new Date().toISOString().split('T')[0] })
-                setSelectedSNs([])
-                fetchItems()
-            }
-        } finally { setSaving(false) }
-    }
-
     const handleBarangChange = async (val: string) => {
-        setForm({ ...form, id_barang: val })
+        setActiveItem({ ...activeItem, id_barang: val })
         setSelectedSNs([])
         if (val) {
             try {
                 const res = await fetch(`/api/inventory/${val}`)
                 if (res.ok) {
                     const d = await res.json()
-                    setAvailableSNs(d.serialNumbers || [])
+                    const available = (d.serialNumbers || []).filter((s: any) => s.id_status === 1)
+                    setAvailableSNs(available)
                 }
             } catch { setAvailableSNs([]) }
         } else {
@@ -81,6 +63,74 @@ export default function KeluarPage() {
         setSelectedSNs(prev => prev.includes(sn) ? prev.filter(s => s !== sn) : [...prev, sn])
     }
 
+    const scanSN = (sn: string) => {
+        const found = availableSNs.find(a => a.serial_number === sn)
+        if (found) {
+            if (!selectedSNs.includes(sn)) {
+                if (selectedSNs.length < parseInt(activeItem.jumlah || '0')) {
+                    setSelectedSNs(prev => [...prev, sn])
+                } else {
+                    alert("Jumlah SN sudah mencapai batas kuantitas Barang.")
+                }
+            }
+        } else {
+            alert("SN tidak ditemukan di daftar stok tersedia.")
+        }
+    }
+
+    const addToCart = () => {
+        if (!activeItem.id_barang || !activeItem.jumlah) return alert('Pilih barang dan jumlah')
+        const qty = parseInt(activeItem.jumlah)
+        if (availableSNs.length > 0 && selectedSNs.length !== qty) {
+            return alert(`Barang ini memiliki Serial Number. Anda harus memilih tepat ${qty} SN.`)
+        }
+        const bInfo = barangList.find(b => b.id_barang === parseInt(activeItem.id_barang))
+        if (!bInfo) return
+
+        setCart(prev => [...prev, {
+            id_barang: bInfo.id_barang,
+            nama_barang: bInfo.nama_barang,
+            kode_barang: bInfo.kode_barang,
+            jumlah: qty,
+            serial_numbers: selectedSNs
+        }])
+
+        // Reset drafter
+        setActiveItem({ id_barang: '', jumlah: '' })
+        setSelectedSNs([])
+        setAvailableSNs([])
+    }
+
+    const removeFromCart = (index: number) => {
+        const next = [...cart]; next.splice(index, 1); setCart(next);
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (cart.length === 0) return alert('Keranjang kosong. Tambahkan barang terlebih dahulu.')
+        setSaving(true)
+        try {
+            const res = await fetch('/api/keluar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    tgl_keluar: globalForm.tgl_keluar,
+                    no_request: globalForm.no_request,
+                    keterangan: globalForm.keterangan,
+                    is_pop: globalForm.is_pop,
+                    lokasi_pop: globalForm.is_pop ? globalForm.lokasi_pop : null,
+                    items: cart
+                })
+            })
+            if (res.ok) {
+                setShowForm(false);
+                setGlobalForm({ tgl_keluar: new Date().toISOString().split('T')[0], no_request: '', keterangan: '', is_pop: false, lokasi_pop: '' })
+                setCart([])
+                fetchItems()
+            }
+        } finally { setSaving(false) }
+    }
+
     return (
         <div className="fade-in">
             <div className="page-header">
@@ -90,72 +140,143 @@ export default function KeluarPage() {
                     </h1>
                     <p style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>Riwayat pengeluaran barang · {total} transaksi</p>
                 </div>
-                <button className="btn btn-primary btn-sm" onClick={() => setShowForm(!showForm)}><Plus size={15} /> Input Barang Keluar</button>
+                <button className="btn btn-primary btn-sm" onClick={() => setShowForm(!showForm)}><Plus size={15} /> Buat Transaksi Keluar</button>
             </div>
             <div className="page-content">
                 {showForm && (
-                    <div className="glass-card" style={{ padding: 24, marginBottom: 24 }}>
-                        <h3 style={{ fontSize: 15, fontWeight: 600, color: '#F1F5F9', marginBottom: 20 }}>Form Pengeluaran Barang</h3>
-                        <form onSubmit={handleSubmit}>
-                            <div className="grid-2" style={{ marginBottom: 16, gap: 16 }}>
-                                <div>
-                                    <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 6 }}>Barang *</label>
-                                    <select className="input" value={form.id_barang} onChange={e => handleBarangChange(e.target.value)} required>
-                                        <option value="">-- Pilih Barang --</option>
-                                        {barangList.map(b => <option key={b.id_barang} value={b.id_barang}>{b.kode_barang} - {b.nama_barang}</option>)}
-                                    </select>
+                    <div className="glass-card fade-in" style={{ padding: 24, marginBottom: 24, border: '2px solid rgba(59,130,246,0.2)' }}>
+                        <h3 style={{ fontSize: 16, fontWeight: 600, color: '#F1F5F9', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <ShoppingCart size={18} color="#60A5FA" /> Keranjang Multi-Item (Checkout)
+                        </h3>
+
+                        <div className="grid-2" style={{ gap: 24 }}>
+                            {/* Kiri: Tambah Barang */}
+                            <div style={{ padding: 16, background: 'rgba(255,255,255,0.02)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.05)' }}>
+                                <h4 style={{ fontSize: 14, fontWeight: 600, color: '#E2E8F0', marginBottom: 16 }}>1. Tambah Barang ke Keranjang</h4>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                    <div>
+                                        <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 4 }}>Pilih Barang</label>
+                                        <select className="input" value={activeItem.id_barang} onChange={e => handleBarangChange(e.target.value)}>
+                                            <option value="">-- Cari Barang --</option>
+                                            {barangList.map(b => <option key={b.id_barang} value={b.id_barang}>{b.kode_barang} - {b.nama_barang}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 4 }}>Kuantitas (Jumlah)</label>
+                                        <input className="input" type="number" min="1" value={activeItem.jumlah} onChange={e => setActiveItem({ ...activeItem, jumlah: e.target.value })} placeholder="0" />
+                                    </div>
+
+                                    {availableSNs.length > 0 && activeItem.jumlah && parseInt(activeItem.jumlah) > 0 && (
+                                        <div style={{ marginTop: 8, padding: 12, background: 'rgba(15,23,42,0.5)', borderRadius: 8, border: '1px solid #1E293B' }}>
+                                            <label style={{ fontSize: 13, color: '#F1F5F9', display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontWeight: 500 }}>
+                                                <span>Pilih/Scan SN (Wajib {activeItem.jumlah})</span>
+                                                <span style={{ color: selectedSNs.length === parseInt(activeItem.jumlah) ? '#10B981' : '#F59E0B' }}>
+                                                    {selectedSNs.length} / {activeItem.jumlah} dipilih
+                                                </span>
+                                            </label>
+                                            {/* Infrared Barcode Scanner Input */}
+                                            <input
+                                                className="input"
+                                                style={{ marginBottom: 12, border: '1px solid #3B82F6' }}
+                                                placeholder="[SCAN BARCODE / KETIK SN DISINI & ENTER]"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        scanSN(e.currentTarget.value)
+                                                        e.currentTarget.value = '';
+                                                    }
+                                                }}
+                                            />
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 6, maxHeight: 150, overflowY: 'auto', paddingRight: 4 }}>
+                                                {availableSNs.map((snItem) => {
+                                                    const isSelected = selectedSNs.includes(snItem.serial_number);
+                                                    return (
+                                                        <label key={snItem.id_sn} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: isSelected ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.02)', border: `1px solid ${isSelected ? '#3B82F6' : '#1E293B'}`, borderRadius: 6, cursor: 'pointer', opacity: (!isSelected && selectedSNs.length >= parseInt(activeItem.jumlah)) ? 0.5 : 1 }}>
+                                                            <input
+                                                                type="checkbox" checked={isSelected}
+                                                                onChange={() => toggleSN(snItem.serial_number)}
+                                                                disabled={!isSelected && selectedSNs.length >= parseInt(activeItem.jumlah)}
+                                                                style={{ accentColor: '#3B82F6', width: 14, height: 14 }}
+                                                            />
+                                                            <span style={{ fontSize: 11, fontFamily: 'monospace', color: isSelected ? '#60A5FA' : '#94A3B8' }}>{snItem.serial_number}</span>
+                                                        </label>
+                                                    )
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <button type="button" className="btn btn-secondary" style={{ marginTop: 8 }} onClick={addToCart}>
+                                        + Masukkan ke Keranjang
+                                    </button>
                                 </div>
-                                <div>
-                                    <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 6 }}>Jumlah *</label>
-                                    <input className="input" type="number" min="1" value={form.jumlah} onChange={e => setForm({ ...form, jumlah: e.target.value })} required placeholder="0" />
+                            </div>
+
+                            {/* Kanan: Cart & Global Info */}
+                            <div>
+                                <h4 style={{ fontSize: 14, fontWeight: 600, color: '#E2E8F0', marginBottom: 16 }}>2. Daftar Pengeluaran & Checkout</h4>
+                                <div style={{ background: 'rgba(15,23,42,0.5)', borderRadius: 12, border: '1px solid #1E293B', padding: 12, minHeight: 120, marginBottom: 16 }}>
+                                    {cart.length === 0 ? (
+                                        <div style={{ color: '#64748B', fontSize: 12, textAlign: 'center', padding: '30px 0' }}>Keranjang masih kosong</div>
+                                    ) : (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                            {cart.map((c, i) => (
+                                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '10px 12px', borderRadius: 8 }}>
+                                                    <div>
+                                                        <div style={{ fontSize: 13, fontWeight: 600, color: '#F1F5F9' }}>{c.nama_barang}</div>
+                                                        <div style={{ fontSize: 11, color: '#94A3B8' }}>{c.jumlah} unit {c.serial_numbers.length > 0 ? `(${c.serial_numbers.length} SN)` : ''}</div>
+                                                    </div>
+                                                    <button type="button" onClick={() => removeFromCart(i)} style={{ background: 'transparent', border: 'none', color: '#EF4444', cursor: 'pointer', padding: 4 }}>
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
-                                <div>
-                                    <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 6 }}>Tanggal Keluar</label>
-                                    <input className="input" type="date" value={form.tgl_keluar} onChange={e => setForm({ ...form, tgl_keluar: e.target.value })} />
-                                </div>
-                                <div>
-                                    <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 6 }}>No. Request (opsional)</label>
-                                    <input className="input" value={form.no_request} onChange={e => setForm({ ...form, no_request: e.target.value })} placeholder="REQ-001" />
-                                </div>
-                                <div style={{ gridColumn: '1/-1' }}>
-                                    <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 6 }}>Keterangan</label>
-                                    <textarea className="input" value={form.keterangan} onChange={e => setForm({ ...form, keterangan: e.target.value })} placeholder="Tujuan pengeluaran..." rows={2} style={{ resize: 'vertical' }} />
-                                </div>
-                                {availableSNs.length > 0 && form.jumlah && parseInt(form.jumlah) > 0 && (
-                                    <div style={{ gridColumn: '1/-1', marginTop: 12, paddingTop: 16, borderTop: '1px solid #1E293B' }}>
-                                        <label style={{ fontSize: 13, color: '#F1F5F9', display: 'flex', justifyContent: 'space-between', marginBottom: 12, fontWeight: 500 }}>
-                                            <span>Pilih Serial Number (Pilih {form.jumlah}) *</span>
-                                            <span style={{ color: selectedSNs.length === parseInt(form.jumlah) ? '#10B981' : '#F59E0B' }}>
-                                                {selectedSNs.length} / {form.jumlah} dipilih
-                                            </span>
-                                        </label>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 8 }}>
-                                            {availableSNs.map((snItem) => {
-                                                const isSelected = selectedSNs.includes(snItem.serial_number);
-                                                return (
-                                                    <label key={snItem.id_sn} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: isSelected ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.02)', border: `1px solid ${isSelected ? '#3B82F6' : '#1E293B'}`, borderRadius: 8, cursor: 'pointer', opacity: (!isSelected && selectedSNs.length >= parseInt(form.jumlah)) ? 0.5 : 1 }}>
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={isSelected}
-                                                            onChange={() => toggleSN(snItem.serial_number)}
-                                                            disabled={!isSelected && selectedSNs.length >= parseInt(form.jumlah)}
-                                                            style={{ accentColor: '#3B82F6', width: 16, height: 16 }}
-                                                        />
-                                                        <span style={{ fontSize: 13, fontFamily: 'monospace', color: isSelected ? '#60A5FA' : '#94A3B8' }}>{snItem.serial_number}</span>
-                                                    </label>
-                                                )
-                                            })}
+
+                                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                    <div className="grid-2" style={{ gap: 12 }}>
+                                        <div>
+                                            <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 4 }}>Tanggal Keluar</label>
+                                            <input className="input" type="date" value={globalForm.tgl_keluar} onChange={e => setGlobalForm({ ...globalForm, tgl_keluar: e.target.value })} required />
+                                        </div>
+                                        <div>
+                                            <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 4 }}>No. Request</label>
+                                            <input className="input" value={globalForm.no_request} onChange={e => setGlobalForm({ ...globalForm, no_request: e.target.value })} placeholder="Opsional" />
                                         </div>
                                     </div>
-                                )}
+                                    <div>
+                                        <label style={{ fontSize: 12, color: '#94A3B8', display: 'block', marginBottom: 4 }}>Keterangan Umum</label>
+                                        <textarea className="input" value={globalForm.keterangan} onChange={e => setGlobalForm({ ...globalForm, keterangan: e.target.value })} placeholder="Alasan pengeluaran..." rows={2} />
+                                    </div>
+
+                                    {/* ASSET POP CHECKBOX */}
+                                    <div style={{ padding: 12, background: globalForm.is_pop ? 'rgba(139,92,246,0.1)' : 'rgba(255,255,255,0.02)', borderRadius: 8, border: `1px solid ${globalForm.is_pop ? '#8B5CF6' : 'rgba(255,255,255,0.05)'}` }}>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                                            <input type="checkbox" checked={globalForm.is_pop} onChange={e => setGlobalForm({ ...globalForm, is_pop: e.target.checked })} style={{ width: 16, height: 16, accentColor: '#8B5CF6' }} />
+                                            <span style={{ fontSize: 13, fontWeight: 500, color: globalForm.is_pop ? '#A78BFA' : '#CBD5E1', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                <MapPin size={16} /> Jadikan Aset Keluar untuk Keperluan POPs
+                                            </span>
+                                        </label>
+                                        {globalForm.is_pop && (
+                                            <div style={{ marginTop: 12 }} className="fade-in">
+                                                <label style={{ fontSize: 12, color: '#A78BFA', display: 'block', marginBottom: 4 }}>Nama Lokasi / Point of Presence (POP) *</label>
+                                                <input className="input" style={{ borderColor: '#8B5CF6' }} value={globalForm.lokasi_pop} onChange={e => setGlobalForm({ ...globalForm, lokasi_pop: e.target.value })} placeholder="Contoh: POP Jakarta Selatan 1" required={globalForm.is_pop} />
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                                        <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={saving || cart.length === 0}>{saving ? 'Memproses...' : '🚀 Proses Checkout Barang'}</button>
+                                        <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>Batal</button>
+                                    </div>
+                                </form>
                             </div>
-                            <div style={{ display: 'flex', gap: 12 }}>
-                                <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Menyimpan...' : '✓ Simpan'}</button>
-                                <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>Batal</button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 )}
+
                 <div className="data-table-container">
                     {loading ? <div style={{ padding: 48, textAlign: 'center', color: '#64748B' }}>Memuat...</div> : (
                         <table className="data-table">

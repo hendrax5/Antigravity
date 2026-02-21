@@ -21,31 +21,49 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     const body = await request.json()
-    const item = await prisma.barangKeluar.create({
-        data: {
-            id_barang: body.id_barang,
-            jumlah: body.jumlah,
-            id_cabang: body.id_cabang,
-            keterangan: body.keterangan,
-            no_request: body.no_request,
-            tgl_keluar: new Date(body.tgl_keluar ?? new Date()),
-            id_admin: body.id_admin ?? 1,
-        },
-    })
+    const tgl = new Date(body.tgl_keluar ?? new Date())
+    const results = []
 
-    // Decrement stok
-    await prisma.masterBarang.update({
-        where: { id_barang: body.id_barang },
-        data: { stok_barang_baru: { decrement: body.jumlah } },
-    })
+    // Ensure it supports `items` array from the new cart UI
+    const itemsList = body.items || [{
+        id_barang: body.id_barang,
+        jumlah: body.jumlah,
+        serial_numbers: body.serial_numbers || []
+    }]
 
-    // Handle deployed SNs
-    if (body.serial_numbers && Array.isArray(body.serial_numbers) && body.serial_numbers.length > 0) {
-        await prisma.serialNumber.updateMany({
-            where: { serial_number: { in: body.serial_numbers }, id_status: 1 },
-            data: { id_barang_keluar: item.id_keluar, id_status: 2 }
+    for (const data of itemsList) {
+        const item = await prisma.barangKeluar.create({
+            data: {
+                id_barang: data.id_barang,
+                jumlah: data.jumlah,
+                id_cabang: body.id_cabang || null,
+                keterangan: body.keterangan || null,
+                no_request: body.no_request || null,
+                tgl_keluar: tgl,
+                id_admin: body.id_admin ?? 1,
+            },
         })
+
+        // Decrement stok
+        await prisma.masterBarang.update({
+            where: { id_barang: data.id_barang },
+            data: { stok_barang_baru: { decrement: data.jumlah } },
+        })
+
+        // Handle deployed SNs and POP Locations
+        if (data.serial_numbers && Array.isArray(data.serial_numbers) && data.serial_numbers.length > 0) {
+            await prisma.serialNumber.updateMany({
+                where: { serial_number: { in: data.serial_numbers }, id_status: 1 },
+                data: {
+                    id_barang_keluar: item.id_keluar,
+                    id_status: 2,
+                    lokasi_pop: body.is_pop ? (body.lokasi_pop || 'unset') : null
+                }
+            })
+        }
+
+        results.push(item)
     }
 
-    return NextResponse.json(item, { status: 201 })
+    return NextResponse.json(results, { status: 201 })
 }

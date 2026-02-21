@@ -167,6 +167,7 @@ model SerialNumber {
   id_barang_keluar Int?
   id_barang_masuk  Int?
   serial_number    String       @map("kode_serial_number") @db.VarChar(200)
+  lokasi_pop       String?      @db.VarChar(255)
   id_status        Int
 
   barangKeluar     BarangKeluar? @relation(fields: [id_barang_keluar], references: [id_keluar])
