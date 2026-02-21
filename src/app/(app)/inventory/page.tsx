@@ -152,10 +152,18 @@ export default function InventoryPage() {
                                     const statusLabel = status === 'aman' ? '✓ Aman' : status === 'menipis' ? '⚠ Menipis' : '✗ Habis'
                                     return (
                                         <tr key={item.id_barang}>
-                                            <td style={{ fontFamily: 'monospace', fontSize: 12, color: '#60A5FA' }}>{item.kode_barang}</td>
+                                            <td style={{ fontFamily: 'monospace', fontSize: 12 }}>
+                                                <Link href={`/inventory/${item.id_barang}`} style={{ color: '#60A5FA', textDecoration: 'none' }}>
+                                                    {item.kode_barang}
+                                                </Link>
+                                            </td>
                                             <td>
-                                                <div style={{ color: '#F1F5F9', fontWeight: 500 }}>{item.nama_barang}</div>
-                                                <div style={{ fontSize: 11, color: '#475569' }}>{item.satuan}</div>
+                                                <Link href={`/inventory/${item.id_barang}`} style={{ display: 'block', textDecoration: 'none' }}>
+                                                    <div style={{ color: '#F1F5F9', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                        {item.nama_barang}
+                                                    </div>
+                                                    <div style={{ fontSize: 11, color: '#475569' }}>{item.satuan}</div>
+                                                </Link>
                                             </td>
                                             <td style={{ fontSize: 12 }}>{item.kategori?.kategori ?? '-'}</td>
                                             <td>
