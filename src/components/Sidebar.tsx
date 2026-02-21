@@ -24,14 +24,9 @@ const menuGroups = [
         items: [
             { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
             { href: '/inventory', label: 'Inventory', icon: Package },
-            { href: '/laporan', label: 'Laporan', icon: Printer },
-        ],
-    },
-    {
-        label: 'Transaksi',
-        items: [
             { href: '/masuk', label: 'Barang Masuk', icon: ArrowDownCircle },
             { href: '/keluar', label: 'Barang Keluar', icon: ArrowUpCircle },
+            { href: '/laporan', label: 'Laporan', icon: Printer },
         ],
     },
     {

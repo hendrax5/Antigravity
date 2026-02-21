@@ -270,21 +270,23 @@ export default function KeluarPage() {
                                         <textarea className="input" value={globalForm.keterangan} onChange={e => setGlobalForm({ ...globalForm, keterangan: e.target.value })} placeholder="Alasan pengeluaran..." rows={2} />
                                     </div>
 
-                                    {/* ASSET POP CHECKBOX */}
-                                    <div style={{ padding: 12, background: globalForm.is_pop ? 'rgba(139,92,246,0.1)' : 'rgba(255,255,255,0.02)', borderRadius: 8, border: `1px solid ${globalForm.is_pop ? '#8B5CF6' : 'rgba(255,255,255,0.05)'}` }}>
-                                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                                            <input type="checkbox" checked={globalForm.is_pop} onChange={e => setGlobalForm({ ...globalForm, is_pop: e.target.checked })} style={{ width: 16, height: 16, accentColor: '#8B5CF6' }} />
-                                            <span style={{ fontSize: 13, fontWeight: 500, color: globalForm.is_pop ? '#A78BFA' : '#CBD5E1', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                <MapPin size={16} /> Jadikan Aset Keluar untuk Keperluan POPs
-                                            </span>
-                                        </label>
-                                        {globalForm.is_pop && (
-                                            <div style={{ marginTop: 12 }} className="fade-in">
-                                                <label style={{ fontSize: 12, color: '#A78BFA', display: 'block', marginBottom: 4 }}>Nama Lokasi / Point of Presence (POP) *</label>
-                                                <input className="input" style={{ borderColor: '#8B5CF6' }} value={globalForm.lokasi_pop} onChange={e => setGlobalForm({ ...globalForm, lokasi_pop: e.target.value })} placeholder="Contoh: POP Jakarta Selatan 1" required={globalForm.is_pop} />
-                                            </div>
-                                        )}
-                                    </div>
+                                    {/* ASSET POP CHECKBOX - Hanya Muncul Jika Ada Barang ber-SN di Keranjang */}
+                                    {cart.some(c => c.serial_numbers.length > 0) && (
+                                        <div style={{ padding: 12, background: globalForm.is_pop ? 'rgba(139,92,246,0.1)' : 'rgba(255,255,255,0.02)', borderRadius: 8, border: `1px solid ${globalForm.is_pop ? '#8B5CF6' : 'rgba(255,255,255,0.05)'}` }}>
+                                            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                                                <input type="checkbox" checked={globalForm.is_pop} onChange={e => setGlobalForm({ ...globalForm, is_pop: e.target.checked })} style={{ width: 16, height: 16, accentColor: '#8B5CF6' }} />
+                                                <span style={{ fontSize: 13, fontWeight: 500, color: globalForm.is_pop ? '#A78BFA' : '#CBD5E1', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                    <MapPin size={16} /> Jadikan Aset Keluar untuk Keperluan POPs
+                                                </span>
+                                            </label>
+                                            {globalForm.is_pop && (
+                                                <div style={{ marginTop: 12 }} className="fade-in">
+                                                    <label style={{ fontSize: 12, color: '#A78BFA', display: 'block', marginBottom: 4 }}>Nama Lokasi / Point of Presence (POP) *</label>
+                                                    <input className="input" style={{ borderColor: '#8B5CF6' }} value={globalForm.lokasi_pop} onChange={e => setGlobalForm({ ...globalForm, lokasi_pop: e.target.value })} placeholder="Contoh: POP Jakarta Selatan 1" required={globalForm.is_pop} />
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
 
                                     <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
                                         <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={saving || cart.length === 0}>{saving ? 'Memproses...' : '🚀 Proses Checkout Barang'}</button>
