@@ -2,11 +2,12 @@
 import { useEffect, useState, useCallback } from 'react'
 import { ArrowDownCircle, Plus, Search } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import Link from 'next/link'
 
 interface BarangMasuk {
     id_masuk: number; jumlah: number; tgl_masuk: string;
     keterangan: string | null; no_po: string | null; id_cabang: number | null;
-    barang: { nama_barang: string; kode_barang: string; satuan: string | null }
+    barang: { id_barang: number; nama_barang: string; kode_barang: string; satuan: string | null }
 }
 
 interface BarangOption { id_barang: number; nama_barang: string; kode_barang: string }
@@ -133,6 +134,7 @@ export default function MasukPage() {
                                             {serialNumbers.map((sn, idx) => (
                                                 <div key={idx}>
                                                     <input
+                                                        id={`sn-input-${idx}`}
                                                         className="input"
                                                         placeholder={`SN Item #${idx + 1}`}
                                                         value={sn}
@@ -140,6 +142,13 @@ export default function MasukPage() {
                                                             const next = [...serialNumbers]
                                                             next[idx] = e.target.value
                                                             setSerialNumbers(next)
+                                                        }}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') {
+                                                                e.preventDefault();
+                                                                const nextInput = document.getElementById(`sn-input-${idx + 1}`);
+                                                                if (nextInput) nextInput.focus();
+                                                            }
                                                         }}
                                                         required
                                                     />
@@ -181,8 +190,10 @@ export default function MasukPage() {
                                     <tr key={item.id_masuk}>
                                         <td style={{ color: '#475569', fontSize: 12 }}>{(page - 1) * 20 + idx + 1}</td>
                                         <td>
-                                            <div style={{ color: '#F1F5F9', fontWeight: 500 }}>{item.barang.nama_barang}</div>
-                                            <div style={{ fontSize: 11, color: '#60A5FA', fontFamily: 'monospace' }}>{item.barang.kode_barang}</div>
+                                            <Link href={`/inventory/${item.barang.id_barang}`} style={{ display: 'block', color: '#60A5FA', fontWeight: 600, textDecoration: 'none' }} className="hover-underline">
+                                                {item.barang.nama_barang}
+                                            </Link>
+                                            <div style={{ fontSize: 11, color: '#94A3B8', fontFamily: 'monospace' }}>{item.barang.kode_barang}</div>
                                         </td>
                                         <td><span style={{ color: '#10B981', fontWeight: 700, fontSize: 16 }}>+{item.jumlah}</span> <span style={{ color: '#64748B', fontSize: 12 }}>{item.barang.satuan}</span></td>
                                         <td style={{ fontSize: 12, color: '#94A3B8', fontFamily: 'monospace' }}>{item.no_po ?? '-'}</td>

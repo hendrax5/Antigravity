@@ -1,17 +1,20 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Printer, Download, FileSpreadsheet, Package, ArrowDownCircle, ArrowUpCircle, Calendar } from 'lucide-react'
 
 export default function LaporanPage() {
     const [reportType, setReportType] = useState('inventory')
 
-    // Default 1 month range
-    const [startDate, setStartDate] = useState(() => {
+    // Default 1 month range (Hydration safe)
+    const [startDate, setStartDate] = useState('')
+    const [endDate, setEndDate] = useState('')
+
+    useEffect(() => {
         const d = new Date()
+        setEndDate(d.toISOString().split('T')[0])
         d.setMonth(d.getMonth() - 1)
-        return d.toISOString().split('T')[0]
-    })
-    const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0])
+        setStartDate(d.toISOString().split('T')[0])
+    }, [])
 
     const handleExport = (format: 'csv' | 'print') => {
         const query = `type=${reportType}&start=${startDate}&end=${endDate}`
