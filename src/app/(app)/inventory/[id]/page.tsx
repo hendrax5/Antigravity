@@ -70,31 +70,29 @@ export default function InventoryDetailPage() {
                     </div>
                 </div>
 
-                {item.sn === 'ya' && (
-                    <div style={{ background: '#0F172A', border: '1px solid #1E293B', borderRadius: 12, padding: 24, maxHeight: 310, overflowY: 'auto' }}>
-                        <h3 style={{ fontSize: 15, fontWeight: 600, color: '#F1F5F9', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Hash size={16} color="#8B5CF6" /> Daftar Serial Number (Keluar)</h3>
-                        {serialNumbers.length === 0 ? <p style={{ color: '#64748B', fontSize: 13, textAlign: 'center', padding: 20 }}>Belum ada SN yang tercatat</p> : (
-                            <table style={{ width: '100%', fontSize: 12, textAlign: 'left', borderCollapse: 'collapse' }}>
-                                <thead>
-                                    <tr style={{ color: '#94A3B8', borderBottom: '1px solid #1E293B' }}>
-                                        <th style={{ paddingBottom: 8, fontWeight: 500 }}>Serial Number</th>
-                                        <th style={{ paddingBottom: 8, fontWeight: 500 }}>Status</th>
+                <div style={{ background: '#0F172A', border: '1px solid #1E293B', borderRadius: 12, padding: 24, maxHeight: 310, overflowY: 'auto' }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 600, color: '#F1F5F9', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}><Hash size={16} color="#8B5CF6" /> Daftar Serial Number (Keluar)</h3>
+                    {serialNumbers.length === 0 ? <p style={{ color: '#64748B', fontSize: 13, textAlign: 'center', padding: 20 }}>Belum ada SN yang tercatat</p> : (
+                        <table style={{ width: '100%', fontSize: 12, textAlign: 'left', borderCollapse: 'collapse' }}>
+                            <thead>
+                                <tr style={{ color: '#94A3B8', borderBottom: '1px solid #1E293B' }}>
+                                    <th style={{ paddingBottom: 8, fontWeight: 500 }}>Serial Number</th>
+                                    <th style={{ paddingBottom: 8, fontWeight: 500 }}>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {serialNumbers.map((s: any) => (
+                                    <tr key={s.id_sn} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                        <td style={{ padding: '8px 0', color: '#60A5FA', fontFamily: 'monospace' }}>{s.serial_number}</td>
+                                        <td style={{ padding: '8px 0', color: s.id_status === 1 ? '#10B981' : '#F59E0B' }}>
+                                            {s.id_status === 1 ? 'Di Gudang (Retur)' : 'Deployed/Keluar'}
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {serialNumbers.map((s: any) => (
-                                        <tr key={s.id_sn} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                            <td style={{ padding: '8px 0', color: '#60A5FA', fontFamily: 'monospace' }}>{s.serial_number}</td>
-                                            <td style={{ padding: '8px 0', color: s.id_status === 1 ? '#10B981' : '#F59E0B' }}>
-                                                {s.id_status === 1 ? 'Di Gudang (Retur)' : 'Deployed/Keluar'}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        )}
-                    </div>
-                )}
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
