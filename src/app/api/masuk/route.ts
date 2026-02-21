@@ -24,13 +24,13 @@ export async function POST(request: NextRequest) {
         const body = await request.json()
         const item = await prisma.barangMasuk.create({
             data: {
-                id_barang: body.id_barang,
-                jumlah: body.jumlah,
-                id_cabang: body.id_cabang,
-                keterangan: body.keterangan,
-                no_po: body.no_po,
+                id_barang: Number(body.id_barang),
+                jumlah: Number(body.jumlah),
+                id_cabang: body.id_cabang ? Number(body.id_cabang) : null,
+                keterangan: body.keterangan || null,
+                no_po: body.no_po || null,
                 tgl_masuk: new Date(body.tgl_masuk ?? new Date()),
-                id_admin: body.id_admin ?? 1,
+                id_admin: body.id_admin ? Number(body.id_admin) : 1,
                 id_status_input: 1
             },
         })

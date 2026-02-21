@@ -35,13 +35,13 @@ export async function POST(request: NextRequest) {
         for (const data of itemsList) {
             const item = await prisma.barangKeluar.create({
                 data: {
-                    id_barang: data.id_barang,
-                    jumlah: data.jumlah,
-                    id_cabang: body.id_cabang || null,
+                    id_barang: Number(data.id_barang),
+                    jumlah: Number(data.jumlah),
+                    id_cabang: body.id_cabang ? Number(body.id_cabang) : null,
                     keterangan: body.keterangan || null,
                     no_request: body.no_request || null,
                     tgl_keluar: tgl,
-                    id_admin: body.id_admin ?? 1,
+                    id_admin: body.id_admin ? Number(body.id_admin) : 1,
                 },
             })
 
