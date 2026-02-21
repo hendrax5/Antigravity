@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params
     const body = await request.json()
     try {
         const item = await prisma.user.update({
-            where: { id_user: parseInt(params.id) },
+            where: { id_user: parseInt(id) },
             data: {
                 username: body.username,
                 password: body.password ? body.password : undefined,
@@ -22,10 +23,11 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params
     try {
         await prisma.user.delete({
-            where: { id_user: parseInt(params.id) }
+            where: { id_user: parseInt(id) }
         })
         return NextResponse.json({ success: true })
     } catch (e: any) {

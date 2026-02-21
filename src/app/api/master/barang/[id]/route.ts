@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params
     const body = await request.json()
     try {
         const item = await prisma.masterBarang.update({
-            where: { id_barang: parseInt(params.id) },
+            where: { id_barang: parseInt(id) },
             data: {
                 id_kategori: body.id_kategori ? parseInt(body.id_kategori) : undefined,
                 kode_barang: body.kode_barang,
@@ -23,10 +24,11 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params
     try {
         await prisma.masterBarang.delete({
-            where: { id_barang: parseInt(params.id) }
+            where: { id_barang: parseInt(id) }
         })
         return NextResponse.json({ success: true })
     } catch (e: any) {
