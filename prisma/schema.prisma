@@ -21,7 +21,7 @@ model MasterArea {
 
 model MasterKategori {
   id_kategori Int    @id @default(autoincrement())
-  kategori    String @db.VarChar(255)
+  kategori    String  @map("nama_kategori") @db.VarChar(255)
   kode        String? @db.VarChar(50)
 
   barang      MasterBarang[]
@@ -39,12 +39,12 @@ model MasterPerusahaan {
 
 model MasterCabang {
   id_cabang   Int     @id @default(autoincrement())
-  cabang      String  @db.VarChar(255)
+  cabang      String   @map("nama_cabang") @db.VarChar(255)
   id_area     Int?
-  kode_cabang String? @db.VarChar(50)
-  alamat      String? @db.Text
-  id_admin    Int?
-  tgl_input   DateTime @default(now())
+  kode_cabang String?  @db.VarChar(50)
+  alamat      String?  @map("lokasi") @db.Text
+  id_admin    Int?     @map("rec_user")
+  tgl_input   DateTime @default(now()) @map("rec_date")
 
   userCabang  UserCabang[]
 
@@ -76,14 +76,14 @@ model MasterBarang {
 }
 
 model BarangMasuk {
-  id_masuk    Int      @id @default(autoincrement())
+  id_masuk    Int      @id @default(autoincrement()) @map("id_barang_masuk")
   id_barang   Int
-  jumlah      Float
+  jumlah      Float    @map("qty")
   id_cabang   Int?
-  keterangan  String?  @db.Text
+  keterangan  String?  @map("deskripsi") @db.Text
   tgl_masuk   DateTime @default(now())
-  id_admin    Int?
-  no_po       String?  @db.VarChar(100)
+  id_admin    Int?     @map("id_admin_input")
+  no_po       String?  @db.VarChar(100) @map("id_order")
 
   barang      MasterBarang @relation(fields: [id_barang], references: [id_barang])
 
@@ -91,14 +91,14 @@ model BarangMasuk {
 }
 
 model BarangKeluar {
-  id_keluar   Int      @id @default(autoincrement())
+  id_keluar   Int      @id @default(autoincrement()) @map("id_barang_keluar")
   id_barang   Int
-  jumlah      Float
+  jumlah      Float    @map("qty")
   id_cabang   Int?
-  keterangan  String?  @db.Text
+  keterangan  String?  @map("deskripsi_barang") @db.Text
   tgl_keluar  DateTime @default(now())
-  id_admin    Int?
-  no_request  String?  @db.VarChar(100)
+  id_admin    Int?     @map("requested_by")
+  no_request  String?  @db.VarChar(100) @map("id_order")
 
   barang      MasterBarang @relation(fields: [id_barang], references: [id_barang])
 
@@ -163,14 +163,14 @@ model POBarang {
 }
 
 model SerialNumber {
-  id_sn       Int      @id @default(autoincrement())
-  id_barang   Int
-  serial_number String @db.VarChar(255)
-  status      String   @db.VarChar(50) @default("gudang")
-  id_cabang   Int?
-  keterangan  String?  @db.Text
-  tgl_input   DateTime @default(now())
-  id_admin    Int?
+  id_sn         Int      @id @default(autoincrement()) @map("id_serial_number_edit")
+  id_barang     Int
+  serial_number String   @map("kode_serial_number") @db.VarChar(255)
+  status        String   @db.VarChar(50) @default("gudang")
+  id_cabang     Int?     @map("id_status")
+  keterangan    String?  @db.Text
+  tgl_input     DateTime @default(now())
+  id_admin      Int?
 
   barang      MasterBarang @relation(fields: [id_barang], references: [id_barang])
 
@@ -190,13 +190,13 @@ model BarangRusak {
 }
 
 model User {
-  id_user     Int      @id @default(autoincrement())
-  username    String   @db.VarChar(100)
-  password    String   @db.VarChar(255)
-  nama        String?  @db.VarChar(200)
-  email       String?  @db.VarChar(200)
+  id_user     Int      @id @default(autoincrement()) @map("Id_User")
+  username    String   @map("Username") @db.VarChar(100)
+  password    String   @map("Password") @db.VarChar(255)
+  nama        String?  @map("Nama") @db.VarChar(200)
+  email       String?  @map("Telepon") @db.VarChar(200)
   level       String?  @db.VarChar(50)
-  status      String?  @db.VarChar(20)  @default("aktif")
+  status      String?  @map("status_aktif") @db.VarChar(20)  @default("aktif")
   tgl_input   DateTime @default(now())
 
   userCabang  UserCabang[]
