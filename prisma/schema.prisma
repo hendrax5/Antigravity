@@ -83,6 +83,7 @@ model BarangMasuk {
   id_admin        Int?           @map("id_admin_input")
   no_po           String?        @db.VarChar(100) @map("id_order")
   id_status_input Int?           @default(1)
+  id_tipe         Int?           @default(1)
 
   barang          MasterBarang   @relation(fields: [id_barang], references: [id_barang])
   serialNumbers   SerialNumber[]
@@ -99,6 +100,7 @@ model BarangKeluar {
   tgl_keluar  DateTime @default(now())
   id_admin    Int?     @map("requested_by")
   no_request  String?  @db.VarChar(100) @map("id_order")
+  id_tipe     Int?     @default(1)
 
   barang      MasterBarang @relation(fields: [id_barang], references: [id_barang])
   serialNumbers SerialNumber[]

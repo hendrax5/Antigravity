@@ -1,0 +1,5 @@
+
+Invalid `prisma.barangMasuk.create()` invocation:
+
+
+Null constraint violation on the fields: (`id_tipe`)
