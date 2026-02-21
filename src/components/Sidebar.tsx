@@ -12,6 +12,7 @@ import {
     Search,
     Database,
     Tags,
+    Printer,
     Building2,
     Users,
     Warehouse,
@@ -23,6 +24,7 @@ const menuGroups = [
         items: [
             { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
             { href: '/inventory', label: 'Inventory', icon: Package },
+            { href: '/laporan', label: 'Laporan', icon: Printer },
         ],
     },
     {

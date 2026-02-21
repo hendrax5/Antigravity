@@ -1,0 +1,18 @@
+﻿prisma:error 
+Invalid `prisma.serialNumber.findMany()` invocation in
+C:\Users\hendr\OneDrive\Documents\Antigravity\warehouse-app\testAsset2.js:6:49
+
+  3 
+  4 async function getAssets() {
+  5     try {
+ΓåÆ 6         const items = await prisma.serialNumber.findMany(
+The column `default.t_gudang_serial_number.id_barang` does not exist in the current database.
+ERROR_MESSAGE:
+Invalid `prisma.serialNumber.findMany()` invocation in
+C:\Users\hendr\OneDrive\Documents\Antigravity\warehouse-app\testAsset2.js:6:49
+
+  3 
+  4 async function getAssets() {
+  5     try {
+ΓåÆ 6         const items = await prisma.serialNumber.findMany(
+The column `default.t_gudang_serial_number.id_barang` does not exist in the current database.

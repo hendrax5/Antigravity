@@ -1,0 +1,9 @@
+
+Invalid `prisma.barangMasuk.count()` invocation in
+C:\Users\hendr\OneDrive\Documents\Antigravity\warehouse-app\testStats2.js:6:34
+
+  3 
+  4 async function getStats() {
+  5     try {
+→ 6         await prisma.barangMasuk.count(
+The column `default.t_gudang_barang_masuk.id_masuk` does not exist in the current database.

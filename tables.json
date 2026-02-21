@@ -1,0 +1,104 @@
+[
+  {
+    "Tables_in_default": "m_gudang_area"
+  },
+  {
+    "Tables_in_default": "m_gudang_barang"
+  },
+  {
+    "Tables_in_default": "m_gudang_barang_detail"
+  },
+  {
+    "Tables_in_default": "m_gudang_barang_return"
+  },
+  {
+    "Tables_in_default": "m_gudang_barang_tipe"
+  },
+  {
+    "Tables_in_default": "m_gudang_cabang"
+  },
+  {
+    "Tables_in_default": "m_gudang_cabang_barang"
+  },
+  {
+    "Tables_in_default": "m_gudang_cabang_barang_detail"
+  },
+  {
+    "Tables_in_default": "m_gudang_distributor"
+  },
+  {
+    "Tables_in_default": "m_gudang_induk_perusahaan"
+  },
+  {
+    "Tables_in_default": "m_gudang_kategori"
+  },
+  {
+    "Tables_in_default": "m_gudang_perusahaan"
+  },
+  {
+    "Tables_in_default": "m_gudang_status"
+  },
+  {
+    "Tables_in_default": "m_gudang_status_input"
+  },
+  {
+    "Tables_in_default": "t_gudang_barang_keluar"
+  },
+  {
+    "Tables_in_default": "t_gudang_barang_masuk"
+  },
+  {
+    "Tables_in_default": "t_gudang_inventaris"
+  },
+  {
+    "Tables_in_default": "t_gudang_laporan_barang"
+  },
+  {
+    "Tables_in_default": "t_gudang_order"
+  },
+  {
+    "Tables_in_default": "t_gudang_order_detail"
+  },
+  {
+    "Tables_in_default": "t_gudang_po"
+  },
+  {
+    "Tables_in_default": "t_gudang_po_barang"
+  },
+  {
+    "Tables_in_default": "t_gudang_request"
+  },
+  {
+    "Tables_in_default": "t_gudang_request_detail"
+  },
+  {
+    "Tables_in_default": "t_gudang_rusak"
+  },
+  {
+    "Tables_in_default": "t_gudang_rusak_detail"
+  },
+  {
+    "Tables_in_default": "t_gudang_serial_number"
+  },
+  {
+    "Tables_in_default": "t_gudang_serialnumber_keluar"
+  },
+  {
+    "Tables_in_default": "t_gudang_serialnumber_masuk"
+  },
+  {
+    "Tables_in_default": "t_gudang_serialnumber_return"
+  },
+  {
+    "Tables_in_default": "t_gudang_serialnumber_rusak"
+  },
+  {
+    "Tables_in_default": "t_stokaudit"
+  },
+  {
+    "Tables_in_default": "t_usercabang"
+  },
+  {
+    "Tables_in_default": "user"
+  }
+]

@@ -1,0 +1,228 @@
+
+--- m_gudang_barang ---
+CREATE TABLE `m_gudang_barang` (
+  `id_barang` int(11) NOT NULL AUTO_INCREMENT,
+  `id_perusahaan` int(11) NOT NULL,
+  `id_brand_perusahaan` int(11) DEFAULT NULL,
+  `id_kategori` int(11) NOT NULL,
+  `kode_barang` varchar(200) NOT NULL,
+  `nama_barang` varchar(200) NOT NULL,
+  `sn` char(5) DEFAULT NULL,
+  `stok_barang_baru` double DEFAULT 0,
+  `stok_dismantle` double DEFAULT 0,
+  `stok_min` char(1) DEFAULT '5',
+  `satuan` varchar(50) DEFAULT NULL,
+  `harga_barang` double NOT NULL DEFAULT 0,
+  `tgl_input` date NOT NULL,
+  PRIMARY KEY (`id_barang`),
+  KEY `idx_idbarang` (`id_barang`)
+) ENGINE=MyISAM AUTO_INCREMENT=937 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci
+
+--- m_gudang_kategori ---
+CREATE TABLE `m_gudang_kategori` (
+  `id_kategori` int(11) NOT NULL AUTO_INCREMENT,
+  `id_perusahaan` int(11) NOT NULL,
+  `nama_kategori` varchar(100) NOT NULL,
+  `singkatan` varchar(5) NOT NULL,
+  `rec_user` int(11) DEFAULT NULL,
+  `rec_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id_kategori`)
+) ENGINE=MyISAM AUTO_INCREMENT=41 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci
+
+--- m_gudang_cabang ---
+CREATE TABLE `m_gudang_cabang` (
+  `id_cabang` int(11) NOT NULL AUTO_INCREMENT,
+  `nama_cabang` varchar(50) NOT NULL,
+  `lokasi` text DEFAULT NULL,
+  `area` int(11) DEFAULT NULL,
+  `tipe` char(1) NOT NULL,
+  `rec_user` varchar(20) DEFAULT NULL,
+  `rec_date` datetime DEFAULT NULL,
+  `rec_user_upd` varchar(20) DEFAULT NULL,
+  `rec_date_upd` datetime DEFAULT NULL,
+  PRIMARY KEY (`id_cabang`)
+) ENGINE=MyISAM AUTO_INCREMENT=117 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci
+
+--- m_gudang_area ---
+CREATE TABLE `m_gudang_area` (
+  `id_area` int(11) NOT NULL AUTO_INCREMENT,
+  `area` varchar(255) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `id_admin` int(11) NOT NULL,
+  `tgl_input` datetime NOT NULL DEFAULT current_timestamp(),
+  `admin_update` int(11) DEFAULT NULL,
+  `tgl_update` datetime DEFAULT NULL,
+  PRIMARY KEY (`id_area`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci
+
+--- t_gudang_barang_masuk ---
+CREATE TABLE `t_gudang_barang_masuk` (
+  `id_barang_masuk` int(11) NOT NULL AUTO_INCREMENT,
+  `id_laporan` int(11) DEFAULT NULL,
+  `id_status_input` int(11) NOT NULL,
+  `id_cabang` int(11) DEFAULT NULL,
+  `id_order` int(11) DEFAULT NULL,
+  `id_barang` int(11) DEFAULT NULL,
+  `id_perusahaan` int(11) DEFAULT NULL,
+  `id_kategori` int(11) DEFAULT NULL,
+  `id_tipe` int(11) NOT NULL,
+  `id_distributor` int(11) DEFAULT NULL,
+  `qty` double DEFAULT NULL,
+  `price_only` double DEFAULT NULL,
+  `harga_total` double DEFAULT NULL,
+  `nama_client` varchar(100) DEFAULT NULL,
+  `nama_ts1` varchar(100) DEFAULT NULL,
+  `nama_ts2` varchar(100) DEFAULT NULL,
+  `deskripsi` text DEFAULT NULL,
+  `id_admin_input` int(11) DEFAULT NULL,
+  `id_admin_edit` int(11) DEFAULT NULL,
+  `tgl_masuk_gudang` date DEFAULT NULL,
+  `tgl_masuk` datetime NOT NULL,
+  `tgl_edit` datetime DEFAULT NULL,
+  `qty_adj` int(11) DEFAULT 0,
+  `updated_at` datetime DEFAULT NULL,
+  `requested_by` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_barang_masuk`)
+) ENGINE=MyISAM AUTO_INCREMENT=43309 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci
+
+--- t_gudang_barang_keluar ---
+CREATE TABLE `t_gudang_barang_keluar` (
+  `id_barang_keluar` int(11) NOT NULL AUTO_INCREMENT,
+  `id_laporan` int(11) DEFAULT NULL,
+  `id_status_input` int(11) DEFAULT NULL,
+  `id_cabang` int(11) DEFAULT NULL,
+  `id_order` int(11) DEFAULT NULL,
+  `id_rusak` int(11) DEFAULT NULL,
+  `id_barang` int(11) DEFAULT NULL,
+  `id_perusahaan` int(11) DEFAULT NULL,
+  `id_kategori` int(11) DEFAULT NULL,
+  `id_tipe` int(11) NOT NULL,
+  `id_distributor` int(11) DEFAULT NULL,
+  `jenis_keluar` varchar(50) DEFAULT NULL,
+  `kode_ewo` varchar(15) DEFAULT NULL,
+  `qty` double DEFAULT NULL,
+  `nama_client` text DEFAULT NULL,
+  `nama_ts1` text DEFAULT NULL,
+  `nama_ts2` text DEFAULT NULL,
+  `deskripsi_barang` varchar(100) DEFAULT NULL,
+  `lokasi` varchar(1000) DEFAULT NULL,
+  `penanggung_jawab` varchar(100) DEFAULT NULL,
+  `tgl_keluar` datetime NOT NULL,
+  `tgl_edit` datetime DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  `requested_by` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_barang_keluar`)
+) ENGINE=MyISAM AUTO_INCREMENT=316107 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci
+
+--- t_gudang_request ---
+CREATE TABLE `t_gudang_request` (
+  `id_request` int(11) NOT NULL AUTO_INCREMENT,
+  `id_perusahaan` int(11) NOT NULL,
+  `tipe` varchar(50) DEFAULT NULL,
+  `ewo` varchar(255) DEFAULT NULL,
+  `file_ewo` text DEFAULT NULL,
+  `customer` varchar(255) NOT NULL,
+  `pic_pengajuan` varchar(255) NOT NULL,
+  `pic_ts` varchar(255) DEFAULT NULL,
+  `pic_warehouse` varchar(255) DEFAULT NULL,
+  `noted` text DEFAULT NULL,
+  `tgl_request` date NOT NULL,
+  `status` int(11) DEFAULT NULL,
+  `tgl_approve` datetime DEFAULT NULL,
+  `rec_user` int(11) NOT NULL,
+  `rec_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `rec_user_upd` int(11) DEFAULT NULL,
+  `rec_date_upd` datetime DEFAULT NULL,
+  PRIMARY KEY (`id_request`)
+) ENGINE=InnoDB AUTO_INCREMENT=187 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci
+
+--- t_gudang_request_detail ---
+CREATE TABLE `t_gudang_request_detail` (
+  `id_request_det` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id_request` int(11) NOT NULL,
+  `rab_id` int(11) DEFAULT NULL,
+  `barang` varchar(500) DEFAULT NULL,
+  `id_barang` int(11) DEFAULT NULL,
+  `unit` double NOT NULL DEFAULT 0,
+  `satuan` varchar(255) DEFAULT NULL,
+  `bw` varchar(255) DEFAULT NULL,
+  `team` varchar(255) DEFAULT NULL,
+  `keterangan` text DEFAULT NULL,
+  `rec_user` int(11) NOT NULL,
+  `rec_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `rec_user_upd` int(11) DEFAULT NULL,
+  `rec_date_upd` datetime DEFAULT NULL,
+  PRIMARY KEY (`id_request_det`)
+) ENGINE=InnoDB AUTO_INCREMENT=300 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci
+
+--- t_gudang_po ---
+CREATE TABLE `t_gudang_po` (
+  `id_po` int(11) NOT NULL AUTO_INCREMENT,
+  `id_distributor` int(11) NOT NULL,
+  `id_induk` int(11) NOT NULL,
+  `kode_po` varchar(100) NOT NULL,
+  `penerima` varchar(100) NOT NULL,
+  `diskon` double NOT NULL,
+  `ppn` varchar(20) NOT NULL,
+  `dp` int(11) NOT NULL,
+  `repayment` double NOT NULL DEFAULT 0,
+  `tgl_po` date NOT NULL,
+  `catatan` text DEFAULT NULL,
+  `delivery` text DEFAULT NULL,
+  `term_of_payment` text DEFAULT NULL,
+  `cicilan` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id_po`)
+) ENGINE=MyISAM AUTO_INCREMENT=24 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci
+
+--- t_gudang_po_barang ---
+CREATE TABLE `t_gudang_po_barang` (
+  `id_po_barang` int(11) NOT NULL AUTO_INCREMENT,
+  `id_po` int(11) NOT NULL,
+  `id_barang` int(11) NOT NULL,
+  `qty` varchar(100) NOT NULL,
+  `harga` double NOT NULL,
+  `total` decimal(10,0) NOT NULL,
+  `kurs` enum('Rupiah','Dollar') NOT NULL,
+  PRIMARY KEY (`id_po_barang`)
+) ENGINE=MyISAM AUTO_INCREMENT=33 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci
+
+--- t_gudang_serial_number ---
+CREATE TABLE `t_gudang_serial_number` (
+  `id_serial_number_edit` int(11) NOT NULL AUTO_INCREMENT,
+  `id_barang_keluar` int(11) NOT NULL,
+  `kode_serial_number` varchar(200) NOT NULL,
+  `id_status` int(11) NOT NULL,
+  PRIMARY KEY (`id_serial_number_edit`),
+  KEY `idx_id_barang_keluar` (`id_barang_keluar`),
+  KEY `idx_kode_serial_t` (`kode_serial_number`)
+) ENGINE=MyISAM AUTO_INCREMENT=416781 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci
+
+--- t_gudang_rusak ---
+CREATE TABLE `t_gudang_rusak` (
+  `id_rusak` int(11) NOT NULL AUTO_INCREMENT,
+  `id_tipe` int(11) NOT NULL,
+  `id_status` int(11) DEFAULT NULL,
+  `id_status_input` int(11) NOT NULL,
+  `id_cabang` int(11) NOT NULL,
+  `id_perusahaan` int(11) NOT NULL,
+  `id_barang` int(11) NOT NULL,
+  `qty` int(11) NOT NULL,
+  `deskripsi_rusak` varchar(100) NOT NULL,
+  `tgl_rusak` datetime NOT NULL,
+  PRIMARY KEY (`id_rusak`)
+) ENGINE=MyISAM AUTO_INCREMENT=3654 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci
+
+--- user ---
+CREATE TABLE `user` (
+  `Id_User` int(11) NOT NULL AUTO_INCREMENT,
+  `id_kontak` int(11) DEFAULT NULL,
+  `Username` varchar(100) NOT NULL,
+  `Password` varchar(100) NOT NULL,
+  `Nama` varchar(100) NOT NULL,
+  `Telepon` varchar(30) NOT NULL,
+  `level` varchar(50) NOT NULL,
+  `jabatan` varchar(50) DEFAULT NULL,
+  `id_cabang` int(11) DEFAULT NULL,
+  `status_aktif` int(11) DEFAULT NULL,
+  PRIMARY KEY (`Id_User`)
+) ENGINE=InnoDB AUTO_INCREMENT=184 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci

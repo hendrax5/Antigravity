@@ -1,0 +1,4 @@
+[ERROR] Kategori: The column `default.m_gudang_kategori.kode` does not exist in the current database.
+[ERROR] Cabang: Cannot read properties of undefined (reading 'findFirst')
+[ERROR] Area: Cannot read properties of undefined (reading 'findFirst')
+[ERROR] User: The column `default.user.tgl_input` does not exist in the current database.

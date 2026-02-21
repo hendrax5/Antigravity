@@ -1,0 +1,1 @@
+﻿src/app/(app)/laporan/print/page.tsx(28,28): error TS2339: Property 'nama_kategori' does not exist on type '{ id_kategori: number; kategori: string; singkatan: string | null; }'.

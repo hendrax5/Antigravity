@@ -1,0 +1,25 @@
+﻿Testing Prisma Models...
+[OK] MasterBarang
+[OK] Asset (SerialNumber)
+[OK] Kategori
+prisma:error 
+Invalid `prisma.masterCabang.findFirst()` invocation in
+C:\Users\hendr\OneDrive\Documents\Antigravity\warehouse-app\testPrismaSchema.js:10:59
+
+   7 { name: 'MasterBarang', func: () => prisma.masterBarang.findFirst() },
+   8 { name: 'Asset (SerialNumber)', func: () => prisma.serialNumber.findFirst({ include: { barangKeluar: { include: { barang: true } } } }) },
+   9 { name: 'Kategori', func: () => prisma.masterKategori.findFirst() },
+ΓåÆ 10 { name: 'Cabang', func: () => prisma.masterCabang.findFirst(
+Error converting field "area" of expected non-nullable type "String", found incompatible value of "2".
+[ERROR] Cabang: Error converting field "area" of expected non-nullable type "String", found incompatible value of "2".
+prisma:error 
+Invalid `prisma.masterArea.findFirst()` invocation in
+C:\Users\hendr\OneDrive\Documents\Antigravity\warehouse-app\testPrismaSchema.js:11:55
+
+   8 { name: 'Asset (SerialNumber)', func: () => prisma.serialNumber.findFirst({ include: { barangKeluar: { include: { barang: true } } } }) },
+   9 { name: 'Kategori', func: () => prisma.masterKategori.findFirst() },
+  10 { name: 'Cabang', func: () => prisma.masterCabang.findFirst() },
+ΓåÆ 11 { name: 'Area', func: () => prisma.masterArea.findFirst(
+Error converting field "user_id" of expected non-nullable type "String", found incompatible value of "18".
+[ERROR] Area: Error converting field "user_id" of expected non-nullable type "String", found incompatible value of "18".
+[OK] User

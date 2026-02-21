@@ -1,0 +1,1 @@
+﻿src/app/api/master/kategori/route.ts(17,88): error TS2353: Object literal may only specify known properties, and 'kode' does not exist in type '(Without<MasterKategoriCreateInput, MasterKategoriUncheckedCreateInput> & MasterKategoriUncheckedCreateInput) | (Without<...> & MasterKategoriCreateInput)'.

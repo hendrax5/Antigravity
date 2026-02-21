@@ -1,0 +1,40 @@
+﻿
+--- m_gudang_kategori ---
+id_kategori
+id_perusahaan
+nama_kategori
+singkatan
+rec_user
+rec_date
+
+--- m_gudang_cabang ---
+id_cabang
+nama_cabang
+lokasi
+area
+tipe
+rec_user
+rec_date
+rec_user_upd
+rec_date_upd
+
+--- m_gudang_area ---
+id_area
+area
+user_id
+id_admin
+tgl_input
+admin_update
+tgl_update
+
+--- user ---
+Id_User
+id_kontak
+Username
+Password
+Nama
+Telepon
+level
+jabatan
+id_cabang
+status_aktif
