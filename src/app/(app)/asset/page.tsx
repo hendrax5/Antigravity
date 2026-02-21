@@ -94,7 +94,7 @@ export default function AssetPage() {
                                     </div>
                                     <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                                         <div style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Calendar size={16} color="#94A3B8" /></div>
-                                        <div><div style={{ fontSize: 11, color: '#64748B' }}>Tanggal Input</div><div style={{ fontSize: 14, color: '#F1F5F9' }}>{formatDate(asset.tgl_input)}</div></div>
+                                        <div><div style={{ fontSize: 11, color: '#64748B' }}>Tanggal Input</div><div style={{ fontSize: 14, color: '#F1F5F9' }}>{asset.tgl_input ? formatDate(asset.tgl_input) : '-'}</div></div>
                                     </div>
                                 </div>
                             </div>
@@ -111,7 +111,7 @@ export default function AssetPage() {
                                     <div className="timeline-item">
                                         <div className="timeline-dot" style={{ borderColor: '#10B981', background: '#10B981' }} />
                                         <div style={{ fontSize: 13, color: '#F1F5F9', fontWeight: 500 }}>Terdaftar di Sistem</div>
-                                        <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Didaftarkan pada {formatDate(asset.tgl_input)}.</div>
+                                        <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Didaftarkan pada {asset.tgl_input ? formatDate(asset.tgl_input) : 'tanggal tidak diketahui'}.</div>
                                     </div>
                                 </div>
                             </div>
